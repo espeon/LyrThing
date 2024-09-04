@@ -186,7 +186,7 @@ const App: React.FC = () => {
                 </div>
               </CrossFade>
               <div
-                className="text-4xl max-w-min w-[calc(70%-4rem)]"
+                className="text-4xl max-w-min w-[calc(70%-3rem)]"
                 style={{ color: textColor, padding: songData ? "1rem" : "0" }}
               >
                 {songData ? (

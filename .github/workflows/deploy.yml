@@ -23,9 +23,12 @@ jobs:
         with:
           name: app
           path: dist
-      - name: Upload to releases
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+      - uses: vimtor/action-zip@v1.2
         with:
-          files: dist/*
-
+          files: dist/
+          dest: lyrthing.zip
+      - name: Upload artifacts to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: lyrthing.zip
+        if: github.event_name == 'release'

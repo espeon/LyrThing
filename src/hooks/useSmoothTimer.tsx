@@ -59,7 +59,7 @@ export const useSmoothTimer = ({
     if (onUpdate) onUpdate(internalTime);
   }, [internalTime, onUpdate]);
 
-  const throttledSetInternalTime = useThrottle((s) => {setInternalTime(s); updateTime()}, 100);
+  const throttledSetInternalTime = useThrottle((s) => {setInternalTime(s); updateTime()}, 150);
 
   useEffect(() => {
       if (

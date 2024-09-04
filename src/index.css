@@ -1,0 +1,53 @@
+@font-face {
+  font-family: 'DM Sans';
+  src: url('DMSans-VariableFont_opsz,wght.ttf');
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src: url('DMSans-Italic-VariableFont_opsz,wght.ttf');
+  font-style: italic
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('IBMPlexMono-Medium.ttf');
+}
+
+button {
+  background: transparent
+}
+
+.spin {
+  animation: spinX 100s cubic-bezier(0.57, 0.55, 0.35, 0.84) infinite;
+}
+
+@keyframes spinX {
+  from {
+    transform: rotate(0deg) scale(1.5);
+  }
+  to {
+    transform: rotate(360deg) scale(1.5);
+  }
+  }
+
+@keyframes scrollText {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(calc(-1 * var(--text-width)));
+  }
+}
+
+.animate-scroll-text {
+  animation: scrollText;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:base, * {
+  @apply transition-all duration-300
+}

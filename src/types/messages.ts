@@ -29,7 +29,7 @@ export class Message {
   toSocketData(): SocketData {
     return {
         type: "message",
-        app: "developer-app",
+        app: "com.lutea.lyrthing",
         payload: JSON.stringify(this),
         request: this.function?.toString() || undefined
     };

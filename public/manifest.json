@@ -1,15 +1,15 @@
 {
-  "id": "developer-app",
+  "id": "com.lutea.lyrthing",
   "isAudioSource": false,
   "isScreenSaver": false,
   "isWebApp": true,
   "isLocalApp": true,
   "requires": [
-    "utility"
+    ""
   ],
-  "label": "Lyr Client",
-  "version": "0.8.8",
-  "description": "Client for lyr lyrics server",
+  "label": "LyrThing",
+  "version": "v0.0.1",
+  "description": "Now Playing viewer and Client for umi lyrics server",
   "author": "Natalie B.",
   "platforms": [
     "windows",

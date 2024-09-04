@@ -19,7 +19,7 @@ button {
 }
 
 .spin {
-  animation: spinX 100s cubic-bezier(0.57, 0.55, 0.35, 0.84) infinite;
+  animation: spinX 75s cubic-bezier(0.57, 0.55, 0.35, 0.84) infinite;
 }
 
 @keyframes spinX {

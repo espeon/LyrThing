@@ -51,3 +51,12 @@ export function chooseTextColor(averageRGB: [number, number, number]): 'black' |
     const luminance = getLuminance(averageRGB);
     return luminance > 128 ? 'black' : 'white';
   }
+
+/// Get the complementary color for the input color
+export function getComplementaryColor([r, g, b]: [number, number, number]): [number, number, number] {
+    return [255-r, 255-g, 255-b];
+}
+
+export function colorArrToCSS([r, g, b]: [number, number, number], transparency: number = 100): string {
+    return `rgba(${r}, ${g}, ${b}, ${transparency}%)`;
+}

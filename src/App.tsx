@@ -151,9 +151,8 @@ const App: React.FC = () => {
                 timeout={500}
                 style={{ width: "30%", height: "100%" }}
               >
-                <div className="w-full h-full flex flex-row items-center justify-center">
                   <img
-                    className="w-full h-full rounded-lg border-2"
+                    className="w-full h-full aspect-square rounded-lg border-2 shadow-lg"
                     src={
                       songData?.thumbnail ??
                       "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="
@@ -164,9 +163,9 @@ const App: React.FC = () => {
                         getComplementaryColor(albumColor),
                         35
                       ),
-                    }}
+                      '--tw-shadow-color': colorArrToCSS(albumColor, 35),
+                    } as React.CSSProperties}
                   />
-                </div>
                 <div
                   className="w-full h-2 rounded-lg"
                   style={{
@@ -176,7 +175,7 @@ const App: React.FC = () => {
                   }}
                 >
                   <div
-                    className="h-2 rounded-full"
+                    className="h-2 mt-2 rounded-full"
                     style={{
                       width: `${
                         trackProgress.currentTime / (songInfo.duration / 100000)

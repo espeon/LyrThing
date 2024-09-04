@@ -6,8 +6,10 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "vite",
+    "build-windows": "vite build && npm run build-server-windows",
+    "build-server-windows": "esbuild server/index.ts --bundle --platform=node --outdir=dist/ && cd dist && powershell -c ren index.js index.cjs",
     "build": "vite build && npm run build-server",
-    "build-server": "esbuild server/index.ts --bundle --platform=node --outdir=dist/ && cd dist && powershell -c ren index.js index.cjs",
+    "build-server": "esbuild server/index.ts --bundle --platform=node --outdir=dist/",
     "setup": "node setup.js",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -15,7 +17,6 @@
   "dependencies": {
     "deskthing-client": "latest",
     "deskthing-server": "latest",
-    "fast-average-color": "^9.4.0",
     "react": "^18.3.1",
     "react-crossfade-simple": "^1.0.7",
     "react-dom": "^18.3.1"

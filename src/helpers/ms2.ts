@@ -1,4 +1,4 @@
-export default function s2t(seconds: number, displayMs = false) {
+export function s2t(seconds: number, displayMs = false, msPrecision = 3): string {
     const date = new Date(seconds * 1000);
     const hh = date.getUTCHours();
     const mm = date.getUTCMinutes();
@@ -10,5 +10,9 @@ export default function s2t(seconds: number, displayMs = false) {
         "0",
       )}`;
     }
-    return `${mm}:${String(ss).padStart(2, "0")}${ms > 0 && displayMs ? `.${String(ms).padStart(3, "0")}` : ""}`;
+    return `${mm}:${String(ss).padStart(2, "0")}${ms > 0 && displayMs ? `.${String(ms).padStart(msPrecision, "0") || "0".padStart(msPrecision, "0")}` : ""}`;
   }
+
+export function s2d(seconds): Date {
+  return new Date(seconds * 1000);
+}

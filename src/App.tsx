@@ -12,7 +12,7 @@ import {
 import { ScrollingText } from "./components/scrollingText";
 import { Message, MessageType } from "./types/messages";
 import { useSmoothTimer } from "./hooks/useSmoothTimer";
-import s2t from "./helpers/ms2";
+import {s2t} from "./helpers/ms2";
 
 interface SongInfo {
   duration: number;
@@ -40,7 +40,7 @@ const App: React.FC = () => {
   const trackProgress = useSmoothTimer({
     duration: songInfo.duration / 1000,
     currentTime: songInfo.currentTime / 1000,
-    onUpdate: () => {},
+    throttleBy: 250,
     isActivelyPlaying: songData?.is_playing,
   });
 

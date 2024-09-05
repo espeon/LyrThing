@@ -3,7 +3,9 @@ import { useState, useEffect, useRef, useCallback } from "react";
 interface UseSmoothTimerOptions {
   duration: number;
   currentTime: number;
+  throttleBy?: number;
   onUpdate?: (time: number) => void;
+  onAttemptToUpdateInternalTime?: (time: number) => void;
   isActivelyPlaying?: boolean;
   bounds?: [min: number, max: number];
 }
@@ -14,6 +16,11 @@ export interface TimerControls {
   setLocalTime: (time: number) => void;
 }
 
+/**
+ * A hook that returns a function that can be used to throttle a function call.
+ * @param callback - A callback function to be called whenever the timer updates.
+ * @param delay - The delay in milliseconds before the callback is called.
+ */
 export const useThrottle = (callback: Function, delay: number) => {
   const lastCall = useRef(0);
 
@@ -36,6 +43,8 @@ export const useThrottle = (callback: Function, delay: number) => {
  *   - {number} duration - The duration of the timer in seconds.
  *   - {number} currentTime - The current time of the timer in seconds.
  *   - {function} onUpdate - An optional callback function to be called whenever the timer updates.
+ *   - {function} onAttemptToUpdateInternalTime - An optional callback function to be called whenever the timer attempts to update the internal time.
+ *   - {number} throttleBy - An optional number of milliseconds to throttle the timer updates by. Defaults to 100.
  *   - {boolean} isActivelyPlaying - An optional flag indicating whether the timer is actively playing. Defaults to true.
  *   - {Array<number>} bounds - An optional array of two numbers representing the minimum and maximum bounds of the timer. Defaults to [0, Infinity].
  * @return {Object} An object containing the following properties:
@@ -46,9 +55,11 @@ export const useThrottle = (callback: Function, delay: number) => {
 export const useSmoothTimer = ({
   duration,
   currentTime,
-  onUpdate,
   isActivelyPlaying = true,
+  throttleBy = 100,
   bounds = [0, Infinity],
+  onUpdate = () => {},
+  onAttemptToUpdateInternalTime = () => {},
 }: UseSmoothTimerOptions): TimerControls => {
   const [internalTime, setInternalTime] = useState<number>(currentTime);
   const animationRef = useRef<number | null>(null);
@@ -59,57 +70,73 @@ export const useSmoothTimer = ({
     if (onUpdate) onUpdate(internalTime);
   }, [internalTime, onUpdate]);
 
-  const throttledSetInternalTime = useThrottle((s) => {setInternalTime(s); updateTime()}, 150);
+  const trackUpdateAttempt =useCallback(() => {
+    if (onAttemptToUpdateInternalTime) onAttemptToUpdateInternalTime(internalTime);
+  } , [internalTime, onAttemptToUpdateInternalTime]);
 
+  const throttledSetInternalTime = useThrottle((s) => {setInternalTime(s); updateTime();}, throttleBy);
+
+  const animate = useCallback((time: DOMHighResTimeStamp) => {
+    if (startTimeRef.current !== null) {
+      const elapsed = (time - startTimeRef.current) / 1000; // Convert ms to seconds
+      const predicted = startValueRef.current + elapsed;
+      const newTime = Math.min(predicted, duration);
+  
+      // Update state only if necessary
+      if (Math.abs(newTime - internalTime) > 0.1) { // Tolerance to avoid excessive updates
+        trackUpdateAttempt()
+        throttledSetInternalTime(newTime);
+        
+        // Schedule non-critical tasks in idle time
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(() => {
+            if (onUpdate) onUpdate(newTime);
+          });
+        } else {
+          // Fallback if requestIdleCallback is not supported
+          setTimeout(() => {
+            if (onUpdate) onUpdate(newTime);
+          }, 0);
+        }
+      }
+  
+      if (predicted < duration) {
+        // we don't need instantaneous updates, so schedule the next frame a few ms out
+        setTimeout(() => {
+          animationRef.current = requestAnimationFrame(animate);
+        }, 100);
+      }
+    }
+  }, [duration, internalTime, onUpdate]);
+  
   useEffect(() => {
-      if (
-        !isActivelyPlaying ||
-        internalTime < bounds[0] ||
-        internalTime > bounds[1]
-      ) {
-        setInternalTime(currentTime);
-        startTimeRef.current = null;
-        startValueRef.current = currentTime;
-        return;
-      }
-
-      if (startTimeRef.current === null) {
-        startTimeRef.current = performance.now();
-        startValueRef.current = currentTime;
-      }
-
-      const animate = (time: DOMHighResTimeStamp) => {
-        if (startTimeRef.current !== null) {
-          const elapsed = (time - startTimeRef.current) / 1000; // Convert ms to seconds
-          const predicted = startValueRef.current + elapsed;
-          const newTime = Math.min(predicted, duration);
-
-          if (newTime !== internalTime) {
-            throttledSetInternalTime(newTime);
-          }
-
-          if (predicted < duration) {
-            animationRef.current = requestAnimationFrame(animate);
-          }
-        }
-      };
-
+    if (
+      !isActivelyPlaying ||
+      internalTime < bounds[0] ||
+      internalTime > bounds[1]
+    ) {
+      setInternalTime(currentTime);
+      startTimeRef.current = null;
+      startValueRef.current = currentTime;
+      return;
+    }
+  
+    if (startTimeRef.current === null) {
+      startTimeRef.current = performance.now();
+      startValueRef.current = currentTime;
+    }
+  
+    setTimeout(() => {
       animationRef.current = requestAnimationFrame(animate);
-
-      return () => {
-        if (animationRef.current !== null) {
-          cancelAnimationFrame(animationRef.current);
-        }
-      };
-  }, [
-    isActivelyPlaying,
-    currentTime,
-    duration,
-    bounds,
-    internalTime,
-    updateTime,
-  ]);
-
+    }, 100);
+  
+    return () => {
+      if (animationRef.current !== null) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [isActivelyPlaying, currentTime, duration, bounds, internalTime, animate]);
+  
   const resetTimer = () => {
     setInternalTime(currentTime);
     startTimeRef.current = null;
@@ -119,12 +146,12 @@ export const useSmoothTimer = ({
       animationRef.current = null;
     }
   };
-
+  
   const setLocalTime = (time: number) => {
     setInternalTime(time);
     startTimeRef.current = null; // Reset the start time on manual set
     startValueRef.current = time;
   };
-
+  
   return { currentTime: internalTime, resetTimer, setLocalTime };
 };

@@ -113,15 +113,15 @@ const App: React.FC = () => {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden rounded-xl">
-      <div className="absolute inset-0 spin obs-invis overflow-clip">
+      <div className="absolute inset-0 spin obs-invis overflow-visible"> 
         <div className="absolute inset-0"></div>
         <CrossFade
           contentKey={(songData && songData?.thumbnail) ?? "mnpme"}
           timeout={1000}
-          style={{ backgroundColor: "black" }}
+          style={{ backgroundColor: colorArrToCSS(albumColor) }} 
         >
           <img  
-            className="contrast-[85%] saturate-150 scale-110 blur-lg"
+            className="contrast-[85%] saturate-150 scale-125 blur-lg"
             src={
               songData?.thumbnail ??
               "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="

@@ -7,10 +7,10 @@ export default function TickerTime({ timeMs, className, displayMs = false, msPre
 
     return (
         <div className={clsx("flex justify-center items-center font-mono", className)}>
-        {time.getHours() > 0 ? <AnimatedCounter value={time.getHours()} className="font-mono inline" decimalPrecision={0} padNumber={2} showColorsWhenValueChanges={false} /> : null}
-        <AnimatedCounter value={time.getMinutes()} className="font-mono inline" decimalPrecision={0} padNumber={2} showColorsWhenValueChanges={false} />:
-        <AnimatedCounter value={time.getSeconds()} className="font-mono inline" decimalPrecision={0 } padNumber={2} showColorsWhenValueChanges={false} />
-        {displayMs ? <>.<AnimatedCounter value={time.getMilliseconds()} className="font-mono inline" decimalPrecision={msPrecision} padNumber={3} showColorsWhenValueChanges={false} /></> : null}
+        {time.getHours() > 0 ? <AnimatedCounter value={time.getHours()} className="font-mono inline min-w-max" decimalPrecision={0} padNumber={2} showColorsWhenValueChanges={false} /> : null}
+        <AnimatedCounter value={time.getMinutes()} className="font-mono inline min-w-max" decimalPrecision={0} padNumber={1} showColorsWhenValueChanges={false} />:
+        <AnimatedCounter value={time.getSeconds()} className="font-mono inline min-w-max" decimalPrecision={0} padNumber={2} showColorsWhenValueChanges={false} />
+        {displayMs ? <>.<AnimatedCounter value={time.getMilliseconds()} className="font-mono inline min-w-max" decimalPrecision={msPrecision} padNumber={3} showColorsWhenValueChanges={false} /></> : null}
           </div>
     )
 }

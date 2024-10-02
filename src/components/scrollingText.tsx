@@ -46,7 +46,7 @@ export function ScrollingText({
 
       if (isTextOverflowing) {
         setContainerWidth(container.offsetWidth);
-        const duration = len / 30; // Adjust speed here
+        const duration = len / 50; // Adjust speed here
         setAnimationDuration(duration);
         setTextWidth(len);
       }
@@ -91,7 +91,7 @@ export function ScrollingText({
             animationIterationCount: "infinite",
             // the 0.5rem here is based off half the padding in the span below
             // (padding of value 4 is 1rem)
-            "--text-width": `calc(${textWidth}px + (32px/2))`,
+            "--text-width": `calc(${textWidth}px + (32px))`,
           } as CSSProperties
         }
       >
@@ -99,11 +99,10 @@ export function ScrollingText({
         {isOverflowing && (
           <>
             <div
-              className="text-center inline-block"
-              style={{ inlineSize: "32px" }}
+              className="text-center items-center inline-block"
+              style={{ width: "32px" }}
               ref={dividerRef}
-            >
-              ・
+            >·
             </div>
             <span ref={dupeTextRef}>{text}</span>
           </>

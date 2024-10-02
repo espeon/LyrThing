@@ -8,13 +8,18 @@ import {
   colorArrToCSS,
   getAverageRGB,
   getComplementaryColor,
+  getMatchingOppositeColor,
 } from "./helpers/getAvgColor";
 import { ScrollingText } from "./components/scrollingText";
 import { Message, MessageType } from "./types/messages";
 import { useSmoothTimer } from "./hooks/useSmoothTimer";
-import {s2t} from "./helpers/ms2";
+import { s2t } from "./helpers/ms2";
+import TickerTime from "./components/tickerTime";
+import MicVocal from "./components/icons/micVocal";
+import { clsx } from "clsx";
+import LyricsLayout from "./components/lyricsLayout";
 
-interface SongInfo {
+export interface SongInfo {
   duration: number;
   currentTime: number;
 }
@@ -25,7 +30,7 @@ const App: React.FC = () => {
     musicStore.getSong()
   );
   const [thumbnail, setThumbnail] = React.useState<string | null>(null);
-  const [textColor, setTextColor] = React.useState<"black" | "white" | string>(
+  const [textColor, setTextColor] = React.useState<"rgba(10 10 10 var(--tw-text-opacity))" | "rgba(245 245 245 var(--tw-text-opacity))" | string>(
     "#888888"
   );
   const [albumColor, setAlbumColor] = React.useState<[number, number, number]>([
@@ -35,6 +40,10 @@ const App: React.FC = () => {
     duration: 0,
     currentTime: 0,
   });
+
+  const [currentMode, setCurrentMode] = React.useState<"track" | "lyrics">(
+    "track"
+  );
   const deskthing = DeskThing.getInstance();
 
   const trackProgress = useSmoothTimer({
@@ -47,7 +56,6 @@ const App: React.FC = () => {
   useEffect(() => {
     const onMusicUpdates = async (data: SongData) => {
       setSongData(data);
-      console.log("getting music", data.is_playing);
       if (data.track_progress && data.track_duration) {
         trackProgress.setLocalTime(data.track_progress / 1000);
         setSongInfo({
@@ -113,15 +121,15 @@ const App: React.FC = () => {
 
   return (
     <div className="relative w-screen h-screen overflow-hidden rounded-xl">
-      <div className="absolute inset-0 spin obs-invis overflow-visible"> 
+      <div className="absolute inset-0 spin obs-invis">
         <div className="absolute inset-0"></div>
         <CrossFade
           contentKey={(songData && songData?.thumbnail) ?? "mnpme"}
           timeout={1000}
-          style={{ backgroundColor: colorArrToCSS(albumColor) }} 
+          style={{ backgroundColor: colorArrToCSS(albumColor) }}
         >
-          <img  
-            className="contrast-[85%] saturate-150 scale-125 blur-lg"
+          <img
+            className="contrast-[55%] saturate-150 scale-125 blur-lg"
             src={
               songData?.thumbnail ??
               "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="
@@ -135,96 +143,149 @@ const App: React.FC = () => {
       <CrossFade
         contentKey={
           songData
-            ? songData?.track_name +
-              songData?.artist +
-              textColor +
-              albumColor.toString()
+            ? songData?.track_name + songData?.artist + currentMode
             : "none"
         }
         timeout={500}
       >
-        {songData && songData.track_name ? (
-          <div className="relative flex flex-row w-screen h-full flex-1 items-center justify-center">
-            <div className="w-screen absolute flex flex-row gap-2 items-center justify-center">
-              <CrossFade
-                contentKey={(songData && songData?.thumbnail) ?? "mnpme"}
-                timeout={500}
-                style={{ width: "30%", height: "100%" }}
-              >
-                  <img
-                    className="w-full h-full aspect-square rounded-lg border-2 shadow-lg"
-                    src={
-                      songData?.thumbnail ??
-                      "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="
-                    }
-                    alt=""
+        <div className="relative flex flex-col w-screen h-full items-center justify-center">
+          {songData ? (
+            <>
+              <div className="w-screen h-screen max-h-screen flex flex-col justify-evenly flex-1">
+                <div className="max-h-screen w-screen flex flex-row gap-2 items-center justify-center">
+                  <div
+                    className="h-min max-h-[80vh] w-full aspect-square"
+                    style={{ width: "30%", color: textColor }}
+                  >
+                    <CrossFade
+                      contentKey={(songData && songData?.thumbnail) ?? "mnpme"}
+                      timeout={500}
+                    >
+                      <img
+                        className="w-full h-full object-contain aspect-square rounded-lg border-2 shadow-lg"
+                        src={
+                          songData?.thumbnail ??
+                          "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="
+                        }
+                        alt=""
+                        style={
+                          {
+                            borderColor: colorArrToCSS(
+                              getComplementaryColor(albumColor),
+                              0.35
+                            ),
+                            "--tw-shadow-color": colorArrToCSS(albumColor, 0.5),
+                          } as React.CSSProperties
+                        }
+                      />
+                    </CrossFade>
+                    {currentMode != "track" && (
+                      <div className="w-full pt-2">
+                        <ScrollingText
+                          text={songData.track_name}
+                          className="drop-shadow-lg text-2xl"
+                        />
+                        <ScrollingText
+                          text={songData.artist}
+                          className="text-2xl"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div
+                    className="transition-[width] duration-500 max-w-min w-[calc(70%-3rem)]"
                     style={{
-                      borderColor: colorArrToCSS(
-                        getComplementaryColor(albumColor),
-                        35
-                      ),
-                      '--tw-shadow-color': colorArrToCSS(albumColor, 35),
-                    } as React.CSSProperties}
-                  />
-                <div
+                      color: textColor,
+                      padding: songData ? "1rem" : "0",
+                    }}
+                  >
+                    {currentMode === "lyrics" ? (
+                      <LyricsLayout trackProgress={trackProgress.currentTime} />
+                    ) : songData ? (
+                      <>
+                        <ScrollingText
+                          text={songData.track_name}
+                          className="drop-shadow-lg text-4xl"
+                        />
+                        {songData.album !== songData.track_name ? (
+                          <>
+                            <ScrollingText
+                              text={songData.artist}
+                              className="text-3xl"
+                            />
+                            <ScrollingText
+                              text={songData.album}
+                              className="text-3xl"
+                            />
+                          </>
+                        ) : (
+                          <ScrollingText text={songData.artist} />
+                        )}
+                        <div className="text-xl font-mono flex">
+                          <TickerTime
+                            className="inline"
+                            timeMs={trackProgress.currentTime}
+                          />
+                          /{s2t(songInfo.duration / 1000)}
+                        </div>
+                      </>
+                    ) : (
+                      <div />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="w-screen h-full flex flex-row items-center justify-center space-x-4">
+              <span className="sr-only">Loading...</span>
+              <div className="h-10 w-10 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+              <div className="h-10 w-10 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+              <div className="h-10 w-10 bg-white rounded-full animate-bounce"></div>
+            </div>
+          )}
+          <div className="w-screen px-4 pb-4 -mt-14 flex flex-col items-start justify-center gap-2">
+            {/* <div
                   className="w-full h-2 rounded-lg"
                   style={{
                     backgroundColor: colorArrToCSS(
-                      getComplementaryColor(albumColor)
-                    , 33),
+                      getComplementaryColor(albumColor),
+                      50
+                    ),
                   }}
                 >
                   <div
-                    className="h-2 mt-2 rounded-full"
+                    className="h-2 mt-2 border rounded-full"
                     style={{
                       width: `${
                         trackProgress.currentTime / (songInfo.duration / 100000)
                       }%`,
                       backgroundColor: colorArrToCSS(albumColor),
+                      borderColor: colorArrToCSS(
+                        getComplementaryColor(albumColor),
+                        33
+                      ),
                     }}
                   ></div>
-                </div>
-              </CrossFade>
-              <div
-                className="text-4xl max-w-min w-[calc(70%-3rem)]"
-                style={{ color: textColor, padding: songData ? "1rem" : "0" }}
-              >
-                {songData ? (
-                  <>
-                    <ScrollingText text={songData.track_name} />
-                    {songData.album !== songData.track_name ? (
-                      <>
-                        <ScrollingText
-                          text={songData.artist}
-                          className="text-3xl"
-                        />
-                        <ScrollingText
-                          text={songData.album}
-                          className="text-3xl"
-                        />
-                      </>
-                    ) : (
-                      <ScrollingText text={songData.artist} />
-                    )}
-                    <div className="text-xl font-mono">
-                      {s2t(trackProgress.currentTime)}/
-                      {s2t(songInfo.duration / 1000)}
-                    </div>
-                  </>
-                ) : (
-                  <div />
-                )}
-              </div>
-            </div>
+                </div> */}
+            <button
+              className={clsx(
+                currentMode === "lyrics" && "bg-opacity-75",
+                `w-12 h-12 rounded-full p-1 transition-all duration-300 bg-opacity-55`
+              )}
+              style={{
+                backgroundColor: colorArrToCSS(
+                  getMatchingOppositeColor(albumColor)
+                ),
+              }}
+              onTouchEndCapture={(e) => {
+                setCurrentMode(currentMode === "lyrics" ? "track" : "lyrics");
+              }}
+            >
+              <MicVocal className="w-full h-full" />
+            </button>
           </div>
-        ) : (
-          <div className="w-screen h-full flex flex-row items-center justify-center space-x-4">
-            <span className="sr-only">Loading...</span>
-            <div className="h-10 w-10 bg-white rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-            <div className="h-10 w-10 bg-white rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-            <div className="h-10 w-10 bg-white rounded-full animate-bounce"></div>
-          </div>
-        )}
+        </div>
       </CrossFade>
     </div>
   );

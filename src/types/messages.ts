@@ -6,6 +6,8 @@ export enum FnType {
 
 export enum MessageType {
   SongUpdate = "song",
+  LyricsUpdate = "lyrics",
+  RequestAction = "action",
   Error = "error",
   Log = "log",
   CallFunction = "callFunction",
@@ -26,10 +28,10 @@ export class Message {
     return encodeMessageToJson(this);
   }
 
-  toSocketData(): SocketData {
+  toSocketData(type: string): SocketData {
     return {
-        type: "message",
-        app: "com.lutea.lyrthing",
+        type,
+        app: "developer-app",
         payload: JSON.stringify(this),
         request: this.function?.toString() || undefined
     };

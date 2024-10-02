@@ -1,66 +1,38 @@
-import { DeskThing as DK, SocketData } from 'deskthing-server';
-import { Message } from '../src/types/messages';
+import { DeskThing as DK, SocketData, SongData } from 'deskthing-server';
+import { Message, MessageType } from '../src/types/messages';
+import getCurrentLyrics from './lyricsHandler';
 const DeskThing = DK.getInstance();
 export { DeskThing } // Required export of this exact name for the server to connect
-console.log("Starting!a")
+console.log("Starting!")
 const start = async () => {
   console.log("Starting!")
-    let Data = await DeskThing.getData()
-    DeskThing.on('data', (newData) => {
-        // Syncs the data with the server
-        Data = newData
-        console.log(newData)
-        DeskThing.sendLog('New data received!' + Data)
-    })
-
-    DeskThing.on('message', (m: SocketData) => {
-        let msg = Message.fromJson(m.payload?.toString() || '');
-        DeskThing.sendLog("Client sent message: " + msg.toString())
-    })
-
+    //let Data = await DeskThing.getData()
     DeskThing.toClient({
       type: 'message', request: 'hello',
-      payload: 'hi'
+      payload: 'hi helo'
     });
 
-    // Template Items
+    DeskThing.on('action', (m: SocketData) => {
+        let msg = Message.fromJson(m.payload?.toString() || '');
+        DeskThing.sendLog("Client sent a request for " + msg.type + " " + msg.message)
 
-    // This is how to add settings (implementation may vary)
-    if (!Data?.settings?.theme) {
-        DeskThing.addSettings({
-          "theme": { label: "Theme Choice", value: 'dark', options: [{ label: 'Dark Theme', value: 'dark' }, { label: 'Light Theme', value: 'light' }] },
-        })
-
-        // This will make Data.settings.theme.value equal whatever the user selects
-      }
-
-    // Getting data from the user (Ensure these match)
-    // if (!Data?.user_input || !Data?.second_user_input) {
-    //     const requestScopes = {
-    //       'user_input': {
-    //         'value': '',
-    //         'label': 'Placeholder User Data',
-    //         'instructions': 'You can make the instructions whatever you want. You can also include HTML inline styling like <a href="https://deskthing.app/" target="_blank" style="color: lightblue;">Making Clickable Links</a>.',
-    //       },
-    //       'second_user_input': {
-    //         'value': 'Prefilled Data',
-    //         'label': 'Second Option',
-    //         'instructions': 'Scopes can include as many options as needed',
-    //       }
-    //     }
-    
-    //     DeskThing.getUserInput(requestScopes, async (data) => {
-    //       if (data.payload.user_input && data.payload.second_user_input) {
-    //         // You can either save the returned data to your data object or do something with it
-    //         DeskThing.saveData(data.payload)
-    //       } else {
-    //         DeskThing.sendError('Please fill out all the fields! Restart to try again')
-    //       }
-    //     })
-    //   } else {
-    //     DeskThing.sendLog('Data Exists!')
-    //     // This will be called is the data already exists in the server
-    //   }
+        if (msg.type == 'lyrics') {
+          let query = JSON.parse(msg.message) as SongData
+          DeskThing.sendLog("Handling lyrics request -" + JSON.stringify(query));
+          getCurrentLyrics(JSON.parse(msg.message) as SongData).then((lyrics) => {
+            if (lyrics != null) {
+              DeskThing.sendLog("Got lyrics: " + JSON.stringify(lyrics));
+              let msg = new Message(MessageType.LyricsUpdate, JSON.stringify(lyrics));
+              DeskThing.sendDataToClient({
+                type: 'lyrics',
+                payload: lyrics,
+              });
+            }
+          }).catch((err) => {
+            DeskThing.sendError(err);
+          })
+        }
+    })
 } 
 
 const stop = async () => {

@@ -49,7 +49,7 @@ function getLuminance([r, g, b]: [number, number, number]): number {
   
 export function chooseTextColor(averageRGB: [number, number, number]): 'black' | 'white' {
     const luminance = getLuminance(averageRGB);
-    return luminance > 128 ? 'black' : 'white';
+    return luminance > 128 ? "rgba(10, 10, 10)" : "rgba(245, 245, 245)";
   }
 
 /// Get the complementary color for the input color
@@ -57,6 +57,26 @@ export function getComplementaryColor([r, g, b]: [number, number, number]): [num
     return [255-r, 255-g, 255-b];
 }
 
-export function colorArrToCSS([r, g, b]: [number, number, number], transparency: number = 100): string {
-    return `rgba(${r}, ${g}, ${b}, ${transparency}%)`;
+export function colorArrToCSS([r, g, b]: [number, number, number], transparency?: number): string {
+    return `rgba(${r}, ${g}, ${b}, ${transparency ?? "var(--tw-bg-opacity)"})`;
+}
+
+export function getMatchingOppositeColor([r, g, b]: [number, number, number]): [number, number, number] {
+    // Invert the RGB values to get the complementary color
+    let invertedR = 255 - r;
+    let invertedG = 255 - g;
+    let invertedB = 255 - b;
+
+    // Slightly adjust the colors to create a more aesthetically pleasing combination
+    let adjustment = 30;
+
+    // Clamp values to ensure they are within valid RGB range (0-255)
+    const clamp = (value) => Math.max(0, Math.min(255, value));
+
+    // Apply the adjustment to make the color softer or more balanced
+    let matchingR = clamp(invertedR + (r < 128 ? adjustment : -adjustment));
+    let matchingG = clamp(invertedG + (g < 128 ? adjustment : -adjustment));
+    let matchingB = clamp(invertedB + (b < 128 ? adjustment : -adjustment));
+
+    return [matchingR, matchingG, matchingB];
 }

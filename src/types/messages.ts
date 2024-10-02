@@ -31,7 +31,7 @@ export class Message {
   toSocketData(type: string): SocketData {
     return {
         type,
-        app: "developer-app",
+        app: "co.lutea.lyrthing",
         payload: JSON.stringify(this),
         request: this.function?.toString() || undefined
     };

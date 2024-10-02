@@ -15,7 +15,7 @@ export class LyricsStore {
   constructor() {
     this.deskthing = DeskThing.getInstance();
     this.listeners.push(
-      this.deskthing.on("developer-app", this.handleLyrics.bind(this))
+      this.deskthing.on("co.lutea.lyrthing", this.handleLyrics.bind(this))
     );
     this.deskthing.sendMessageToParent({
       app: "client",

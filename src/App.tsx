@@ -222,10 +222,7 @@ const App: React.FC = () => {
                           <ScrollingText text={songData.artist} className="text-3xl" />
                         )}
                         <div className="text-xl font-mono flex">
-                          <TickerTime
-                            className="inline"
-                            timeMs={trackProgress.currentTime}
-                          />
+                        {s2t(trackProgress.currentTime)}
                           /{s2t(songInfo.duration / 1000)}
                         </div>
                       </>

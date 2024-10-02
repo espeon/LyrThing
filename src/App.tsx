@@ -219,7 +219,7 @@ const App: React.FC = () => {
                             />
                           </>
                         ) : (
-                          <ScrollingText text={songData.artist} />
+                          <ScrollingText text={songData.artist} className="text-3xl" />
                         )}
                         <div className="text-xl font-mono flex">
                           <TickerTime

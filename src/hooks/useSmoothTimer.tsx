@@ -96,7 +96,7 @@ export const useSmoothTimer = ({
           // Fallback if requestIdleCallback is not supported
           setTimeout(() => {
             if (onUpdate) onUpdate(newTime);
-          }, 0);
+          }, 100);
         }
       }
   
@@ -104,7 +104,7 @@ export const useSmoothTimer = ({
         // we don't need instantaneous updates, so schedule the next frame a few ms out
         setTimeout(() => {
           animationRef.current = requestAnimationFrame(animate);
-        }, 100);
+        }, 350);
       }
     }
   }, [duration, internalTime, onUpdate]);

@@ -12,18 +12,16 @@ export default function BasicLyrics({
   const activeLyricRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (lyrics) {
-      const timer = setInterval(() => {
-        if (activeLyricRef.current) {
-          activeLyricRef.current.scrollIntoView({
-            behavior: "instant",
-            block: "center",
-          });
-        }
-      }, 250);
-      return () => clearInterval(timer);
-    }
-  }, [lyrics]);
+    const timer = setTimeout(() => {
+      if (activeLyricRef.current) {
+        activeLyricRef.current.scrollIntoView({
+          behavior: "instant",
+          block: "center",
+        });
+      }
+    }, 250); // Use timeout instead of interval
+    return () => clearTimeout(timer);
+  }, [activeLyricRef.current]);
 
   if (lyrics == null) {
     return null;
@@ -43,7 +41,7 @@ export default function BasicLyrics({
         return (
           <div
             key={String(i) + line.text}
-            className={`w-max max-w-full text-wrap transition-all bg-transparent duration-0 mb-2 md:mb-4 lg:mb-8 py-2 text-left origin-left text-3xl md:text-4xl lg:text-5xl xl:text-6xl ${
+            className={`w-max max-w-full text-wrap transition-transform bg-transparent duration-0 mb-2 md:mb-4 lg:mb-8 py-2 text-left origin-left text-3xl md:text-4xl lg:text-5xl xl:text-6xl ${
               segStatus.isActive ? "scale-100" : "scale-90"
             }`}
             // style={styles}

@@ -119,24 +119,24 @@ const App: React.FC = () => {
     };
   });
 
+  let albumColorCSS = colorArrToCSS(albumColor);
+
   return (
-    <div className="relative w-screen h-screen overflow-hidden rounded-xl">
-      <div className="absolute inset-0 spin obs-invis">
+    <div className="relative w-screen h-screen overflow-hidden rounded-xl opacity-100" style={{ backgroundColor: albumColorCSS }}>
+      <div className="absolute inset-0 obs-invis">
         <div className="absolute inset-0"></div>
         <CrossFade
           contentKey={(songData && songData?.thumbnail) ?? "mnpme"}
           timeout={1000}
-          style={{ backgroundColor: colorArrToCSS(albumColor) }}
+          style={{ backgroundColor: albumColorCSS }}
         >
           <img
-            className="contrast-[55%] saturate-150 scale-125 blur-lg"
+            className="blur-md spin contrast-[55%] saturate-150 scale-125"
             src={
               songData?.thumbnail ??
               "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="
             }
-            alt=""
-            height="20000"
-            width="20000"
+            height="100%"
           />
         </CrossFade>
       </div>

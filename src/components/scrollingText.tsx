@@ -46,7 +46,7 @@ export function ScrollingText({
 
       if (isTextOverflowing) {
         setContainerWidth(container.offsetWidth);
-        const duration = len / 50; // Adjust speed here
+        const duration = len / 25; // Adjust speed here
         setAnimationDuration(duration);
         setTextWidth(len);
       }

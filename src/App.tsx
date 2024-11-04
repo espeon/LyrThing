@@ -205,21 +205,21 @@ const App: React.FC = () => {
                       <>
                         <ScrollingText
                           text={songData.track_name}
-                          className="drop-shadow-lg text-4xl lg:text-6xl xl:text-7xl"
+                          className="drop-shadow-lg text-4xl lg:text-6xl xl:text-7xl 2xl:text-9xl"
                         />
                         {songData.album !== songData.track_name ? (
                           <>
                             <ScrollingText
                               text={songData.artist}
-                              className="text-3xl lg:text-5xl xl:text-6xl"
+                              className="text-3xl lg:text-5xl xl:text-6xl 2xl:text-8xl"
                             />
                             <ScrollingText
                               text={songData.album}
-                              className="text-3xl lg:text-5xl xl:text-6xl"
+                              className="text-3xl lg:text-5xl xl:text-6xl 2xl:text-8xl"
                             />
                           </>
                         ) : (
-                          <ScrollingText text={songData.artist} className="text-3xl lg:text-5xl xl:text-6xl" />
+                          <ScrollingText text={songData.artist} className="text-3xl lg:text-5xl xl:text-6xl 2xl:text-8xl" />
                         )}
                         <div className="text-xl font-mono flex">
                         {s2t(trackProgress.currentTime)}
@@ -274,6 +274,9 @@ const App: React.FC = () => {
                 backgroundColor: colorArrToCSS(
                   getMatchingOppositeColor(albumColor)
                 ),
+              }}
+              onClick={(e) => {
+                setCurrentMode(currentMode === "lyrics" ? "track" : "lyrics");
               }}
               onTouchEndCapture={(e) => {
                 setCurrentMode(currentMode === "lyrics" ? "track" : "lyrics");

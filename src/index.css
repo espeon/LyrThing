@@ -90,4 +90,5 @@ button {
 :base,
 * {
   @apply transition-all duration-300 mix-blend-color;
+  font-optical-sizing: none;
 }

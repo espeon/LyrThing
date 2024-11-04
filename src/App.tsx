@@ -183,11 +183,11 @@ const App: React.FC = () => {
                       <div className="w-full pt-2">
                         <ScrollingText
                           text={songData.track_name}
-                          className="drop-shadow-lg text-2xl"
+                          className="drop-shadow-lg text-2xl lg:text-4xl xl:text-5xl"
                         />
                         <ScrollingText
                           text={songData.artist}
-                          className="text-2xl"
+                          className="text-2xl lg:text-4xl xl:text-5xl"
                         />
                       </div>
                     )}
@@ -205,21 +205,21 @@ const App: React.FC = () => {
                       <>
                         <ScrollingText
                           text={songData.track_name}
-                          className="drop-shadow-lg text-4xl"
+                          className="drop-shadow-lg text-4xl lg:text-6xl xl:text-7xl"
                         />
                         {songData.album !== songData.track_name ? (
                           <>
                             <ScrollingText
                               text={songData.artist}
-                              className="text-3xl"
+                              className="text-3xl lg:text-5xl xl:text-6xl"
                             />
                             <ScrollingText
                               text={songData.album}
-                              className="text-3xl"
+                              className="text-3xl lg:text-5xl xl:text-6xl"
                             />
                           </>
                         ) : (
-                          <ScrollingText text={songData.artist} className="text-3xl" />
+                          <ScrollingText text={songData.artist} className="text-3xl lg:text-5xl xl:text-6xl" />
                         )}
                         <div className="text-xl font-mono flex">
                         {s2t(trackProgress.currentTime)}

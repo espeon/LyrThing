@@ -47,7 +47,7 @@ function getLuminance([r, g, b]: [number, number, number]): number {
     return 0.2126 * r + 0.7152 * g + 0.0722 * b;
   }
   
-export function chooseTextColor(averageRGB: [number, number, number]): 'black' | 'white' {
+export function chooseTextColor(averageRGB: [number, number, number]): string {
     const luminance = getLuminance(averageRGB);
     return luminance > 128 ? "rgba(10, 10, 10)" : "rgba(245, 245, 245)";
   }
@@ -58,7 +58,7 @@ export function getComplementaryColor([r, g, b]: [number, number, number]): [num
 }
 
 export function colorArrToCSS([r, g, b]: [number, number, number], transparency?: number): string {
-    return `rgba(${r}, ${g}, ${b}, ${transparency ?? "var(--tw-bg-opacity)"})`;
+    return `rgba(${r}, ${g}, ${b}, ${transparency ?? 1})`;
 }
 
 export function getMatchingOppositeColor([r, g, b]: [number, number, number]): [number, number, number] {

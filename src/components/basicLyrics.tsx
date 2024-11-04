@@ -36,7 +36,7 @@ export default function BasicLyrics({
           currentTime * 1000,
           line.time,
           lines.lines[i + 1]?.time ?? lines.linesEnd,
-          -0.5
+          -2.5
         );
         return (
           <div
@@ -48,7 +48,7 @@ export default function BasicLyrics({
           >
             <div
               ref={
-                segStatus.isActive && segStatus.percentage < 80
+                segStatus.isActive && segStatus.percentage < 50
                   ? activeLyricRef
                   : null
               }

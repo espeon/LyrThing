@@ -10,17 +10,20 @@ export class MusicStore {
   private musicListeners: MusicListener[] = [];
   private currentSong: SongData | null = null;
 
-
   constructor() {
     this.deskthing = DeskThing.getInstance();
     this.listeners.push(
       this.deskthing.on("music", this.handleMusic.bind(this))
     );
-    this.deskthing.sendMessageToParent({
-      app: "client",
-      type: "get",
-      request: "song",
-    });
+    setTimeout(
+      () =>
+        this.deskthing.sendMessageToParent({
+          app: "client",
+          type: "get",
+          request: "song",
+        }),
+      2000
+    );
   }
 
   static getInstance(): MusicStore {
@@ -30,8 +33,6 @@ export class MusicStore {
     return MusicStore.instance;
   }
 
-
-
   private async handleMusic(data: SongData) {
     console.log("Got song", data);
     // if new song recognised, get the lyrics
@@ -39,7 +40,7 @@ export class MusicStore {
       let track = data;
       track.thumbnail = null;
       let msg = new Message(MessageType.LyricsUpdate, JSON.stringify(data));
-      this.deskthing.sendMessageToParent(msg.toSocketData('action'));
+      this.deskthing.sendMessageToParent(msg.toSocketData("action"));
     }
 
     this.currentSong = data;
@@ -76,4 +77,3 @@ export class MusicStore {
 }
 
 export default MusicStore.getInstance();
-

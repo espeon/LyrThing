@@ -21,7 +21,6 @@ const start = async () => {
           DeskThing.sendLog("Handling lyrics request -" + JSON.stringify(query));
           getCurrentLyrics(JSON.parse(msg.message) as SongData).then((lyrics) => {
             if (lyrics != null) {
-              DeskThing.sendLog("Got lyrics: " + JSON.stringify(lyrics));
               let msg = new Message(MessageType.LyricsUpdate, JSON.stringify(lyrics));
               DeskThing.sendDataToClient({
                 type: 'lyrics',
@@ -31,6 +30,8 @@ const start = async () => {
           }).catch((err) => {
             DeskThing.sendError(err);
           })
+        } else if (msg.type == 'log') {
+          DeskThing.sendLog("Client - " + msg.message);
         }
     })
 } 

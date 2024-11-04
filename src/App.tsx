@@ -14,7 +14,6 @@ import { ScrollingText } from "./components/scrollingText";
 import { Message, MessageType } from "./types/messages";
 import { useSmoothTimer } from "./hooks/useSmoothTimer";
 import { s2t } from "./helpers/ms2";
-import TickerTime from "./components/tickerTime";
 import MicVocal from "./components/icons/micVocal";
 import { clsx } from "clsx";
 import LyricsLayout from "./components/lyricsLayout";
@@ -108,6 +107,7 @@ const App: React.FC = () => {
   }, [thumbnail]);
 
   useEffect(() => {
+
     const onAppData = async (data: SocketData) => {
       console.log("Received data from the server!");
       console.log(data);
@@ -131,7 +131,7 @@ const App: React.FC = () => {
           style={{ backgroundColor: albumColorCSS }}
         >
           <img
-            className="blur-md spin contrast-[55%] saturate-150 scale-125"
+            className={`blur-3xl scale-125 saturate-150 contrast-75 ${textColor === "rgba(245 245 245 var(--tw-text-opacity))" ? "brightness-110" : "brightness-75"} brightness-1 object-cover object-center w-screen h-screen`}
             src={
               songData?.thumbnail ??
               "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="
@@ -162,7 +162,7 @@ const App: React.FC = () => {
                       timeout={500}
                     >
                       <img
-                        className="w-full h-full object-contain aspect-square rounded-lg border-2 shadow-lg"
+                        className="w-full h-full object-center aspect-square rounded-lg border-2 shadow-lg"
                         src={
                           songData?.thumbnail ??
                           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="

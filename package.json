@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build-windows": "vite build && npm run build-server-windows",
-    "build-server-windows": "esbuild server/index.ts --bundle --platform=node --outdir=dist/ && cd dist && powershell -c ren index.js index.cjs",
+    "build-server-windows": "esbuild server/index.ts --bundle --platform=node --outdir=dist/ && cd dist && powershell -c ren index.js index.cjs && powershell -c compress-archive -path ./* -destinationpath ./lyrthing",
     "build": "vite build && npm run build-server",
     "build-server": "esbuild server/index.ts --bundle --platform=node --outdir=dist/",
     "setup": "node setup.js",

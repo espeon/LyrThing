@@ -17,11 +17,6 @@ export class LyricsStore {
     this.listeners.push(
       this.deskthing.on("co.lutea.lyrthing", this.handleLyrics.bind(this))
     );
-    this.deskthing.sendMessageToParent({
-      app: "client",
-      type: "get",
-      request: "song",
-    });
   }
 
   static getInstance(): LyricsStore {
@@ -33,7 +28,13 @@ export class LyricsStore {
 
 
   private async handleLyrics(data: SocketData) {
-    console.log("Got song", data);
+    console.log("Got lyrics", data);
+
+    this.deskthing.sendMessageToParent({
+      app: "co.lutea.lyrthing",
+      type: "log",
+      payload: "Successfully got lyrics" + JSON.stringify(data),
+    })
 
     this.currentLyrics = data.payload;
     if (this.currentLyrics != null) {

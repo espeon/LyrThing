@@ -151,7 +151,7 @@ const App: React.FC = () => {
         <div className="relative flex flex-col w-screen h-full items-center justify-center">
           {songData ? (
             <>
-              <div className="w-screen h-screen max-h-screen flex flex-col justify-evenly flex-1">
+              <div className="w-screen h-screen max-h-screen flex flex-col justify-evenly flex-1 lg:p-16">
                 <div className="max-h-screen w-screen flex flex-row gap-2 items-center justify-center">
                   <div
                     className="h-min max-h-[80vh] w-full aspect-square"
@@ -183,17 +183,17 @@ const App: React.FC = () => {
                       <div className="w-full pt-2">
                         <ScrollingText
                           text={songData.track_name}
-                          className="drop-shadow-lg text-2xl lg:text-4xl xl:text-5xl"
+                          className="drop-shadow-lg text-2xl lg:text-4xl xl:text-6xl"
                         />
                         <ScrollingText
                           text={songData.artist}
-                          className="text-2xl lg:text-4xl xl:text-5xl"
+                          className="text-2xl lg:text-4xl xl:text-6xl"
                         />
                       </div>
                     )}
                   </div>
                   <div
-                    className="transition-[width] duration-500 max-w-min w-[calc(70%-3rem)]"
+                    className="transition-[width] duration-500 max-w-min w-[calc(70%-3rem)] lg:w-[calc(60%)] lg:ml-2 lg:mr-8"
                     style={{
                       color: textColor,
                       padding: songData ? "1rem" : "0",
@@ -205,21 +205,21 @@ const App: React.FC = () => {
                       <>
                         <ScrollingText
                           text={songData.track_name}
-                          className="drop-shadow-lg text-4xl lg:text-6xl xl:text-7xl 2xl:text-9xl"
+                          className="drop-shadow-lg text-4xl lg:text-6xl xl:text-7xl 2xl:text-8xl"
                         />
                         {songData.album !== songData.track_name ? (
                           <>
                             <ScrollingText
                               text={songData.artist}
-                              className="text-3xl lg:text-5xl xl:text-6xl 2xl:text-8xl"
+                              className="text-3xl lg:text-5xl xl:text-6xl 2xl:text-7xl"
                             />
                             <ScrollingText
                               text={songData.album}
-                              className="text-3xl lg:text-5xl xl:text-6xl 2xl:text-8xl"
+                              className="text-3xl lg:text-5xl xl:text-6xl 2xl:text-7xl"
                             />
                           </>
                         ) : (
-                          <ScrollingText text={songData.artist} className="text-3xl lg:text-5xl xl:text-6xl 2xl:text-8xl" />
+                          <ScrollingText text={songData.artist} className="text-3xl lg:text-5xl xl:text-6xl 2xl:text-7xl" />
                         )}
                         <div className="text-xl font-mono flex">
                         {s2t(trackProgress.currentTime)}

@@ -151,7 +151,7 @@ const App: React.FC = () => {
         <div className="relative flex flex-col w-screen h-full items-center justify-center">
           {songData ? (
             <>
-              <div className="w-screen h-screen max-h-screen flex flex-col justify-evenly flex-1 lg:p-16">
+              <div className="w-screen h-screen max-h-screen flex flex-col justify-evenly flex-1 lg:px-16">
                 <div className="max-h-screen w-screen flex flex-row gap-2 items-center justify-center">
                   <div
                     className="h-min max-h-[80vh] w-full aspect-square"

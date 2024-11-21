@@ -1,11 +1,13 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
 import legacy from '@vitejs/plugin-legacy';
+
+import preact from '@preact/preset-vite';
+
 
 // https://vitejs.dev/config/
 export default defineConfig({
   base: './',
-  plugins: [react(),
+  plugins: [preact(),
             legacy({
             targets: ['Chrome 69'], // Specify the browsers you want to support
         }),],

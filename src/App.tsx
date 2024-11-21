@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { DeskThing } from "deskthing-client";
 import { SocketData, SongData } from "deskthing-client/dist/types";
 import { MusicStore } from "./stores/musicStore";
-import { CrossFade } from "react-crossfade-simple";
+import { CrossFade as CrossFadeSimple } from "react-crossfade-simple";
 import {
   chooseTextColor,
   colorArrToCSS,
@@ -17,6 +17,10 @@ import { s2t } from "./helpers/ms2";
 import MicVocal from "./components/icons/micVocal";
 import { clsx } from "clsx";
 import LyricsLayout from "./components/lyricsLayout";
+
+// import crossfade if we are bigger than md
+let isMd = window.innerWidth > 1024;
+const CrossFade = isMd ? CrossFadeSimple : React.Fragment;
 
 export interface SongInfo {
   duration: number;
@@ -81,11 +85,11 @@ const App: React.FC = () => {
           // set text colour based on thumbnail data
           let rgb = await getAverageRGB(thumbnail);
           if (rgb instanceof Error) {
-            return deskthing.sendMessageToParent(
+            return deskthing.send(
               new Message(MessageType.Error, rgb.message)
             );
           }
-          deskthing.sendMessageToParent(
+          deskthing.send(
             new Message(
               MessageType.SongUpdate,
               JSON.stringify({ song: songData, rgb: rgb })
@@ -97,7 +101,7 @@ const App: React.FC = () => {
           console.log("text color", textCol);
         } catch (e: any) {
           console.error(e);
-          return deskthing.sendMessageToParent(
+          return deskthing.send(
             new Message(MessageType.Error, JSON.stringify(e))
           );
         }
@@ -275,10 +279,7 @@ const App: React.FC = () => {
                   getMatchingOppositeColor(albumColor)
                 ),
               }}
-              onClick={(e) => {
-                setCurrentMode(currentMode === "lyrics" ? "track" : "lyrics");
-              }}
-              onTouchEndCapture={(e) => {
+              onClick={(_) => {
                 setCurrentMode(currentMode === "lyrics" ? "track" : "lyrics");
               }}
             >

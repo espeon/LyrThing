@@ -32,4 +32,4 @@ jobs:
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: lyrthing-app.zip
+          files: lyrthing-app-${{ github.event.release.tag_name }}.zip

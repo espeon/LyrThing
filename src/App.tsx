@@ -34,7 +34,7 @@ const App: React.FC = () => {
   );
   const [thumbnail, setThumbnail] = React.useState<string | null>(null);
   const [textColor, setTextColor] = React.useState<"rgba(10 10 10 var(--tw-text-opacity))" | "rgba(245 245 245 var(--tw-text-opacity))" | string>(
-    "#888888"
+    "#ccc"
   );
   const [albumColor, setAlbumColor] = React.useState<[number, number, number]>([
     80, 80, 80,

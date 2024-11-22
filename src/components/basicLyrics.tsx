@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { JLF } from "../types/lyrics";
 import getLyricStatus from "../helpers/lyricStatus";
 
@@ -10,6 +10,8 @@ export default function BasicLyrics({
   currentTime: number;
 }) {
   const activeLyricRef = useRef<HTMLDivElement | null>(null);
+  // for instant scroll on first load
+  const [hasJustLoaded, setHasJustLoaded] = useState(false);
 
   useEffect(() => {
     // is width > 1024px
@@ -17,9 +19,13 @@ export default function BasicLyrics({
     const timer = setTimeout(() => {
       if (activeLyricRef.current) {
         activeLyricRef.current.scrollIntoView({
-          behavior: isMd ? "smooth" : "instant",
+          // if we are after the first three seconds and we've just loaded, we want to scroll instantly no matter device size
+          behavior: isMd && (hasJustLoaded && currentTime * 1000 > 3) ? "smooth" : "instant",
           block: "center",
         });
+        if (!hasJustLoaded) {
+          setHasJustLoaded(true);
+        }
       }
     }, 250); // Use timeout instead of interval
     return () => clearTimeout(timer);
@@ -33,12 +39,14 @@ export default function BasicLyrics({
 
   return (
     <div className="flex flex-col hide-scrollbar w-full max-w-max">
+      {/* if we are in the first like three seconds and no line is active, we set ref to this to scroll up */}
+      <div ref={currentTime * 1000 < 5 && currentTime < lines[0]?.time ? activeLyricRef : null} />
       {lyrics?.lines.lines.map((line, i) => {
         const segStatus = getLyricStatus(
           currentTime * 1000,
           line.time,
           lines.lines[i + 1]?.time ?? lines.linesEnd,
-          -2.5
+          -5
         );
         return (
           <div
@@ -50,7 +58,7 @@ export default function BasicLyrics({
           >
             <div
               ref={
-                segStatus.percentage > 0 && segStatus.percentage < 50
+                segStatus.isActive && segStatus.percentage < 50
                   ? activeLyricRef
                   : null
               }

@@ -1,6 +1,4 @@
 import React, { useEffect, useState, useRef } from "react";
-import { SongData } from "deskthing-client/dist/types";
-import { useSmoothTimer } from "../hooks/useSmoothTimer";
 import { JLF } from "../types/lyrics";
 import { LyricsStore } from "../stores/lyricsStore";
 import BasicLyrics from "./basicLyrics";

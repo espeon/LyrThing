@@ -11,41 +11,43 @@ export class LyricsStore {
   private lyricsListeners: LyricsListener[] = [];
   private currentLyrics: JLF | null = null;
 
-
   constructor() {
     this.deskthing = DeskThing.getInstance();
     this.listeners.push(
-      this.deskthing.on("co.lutea.lyrthing", this.handleLyrics.bind(this))
+      this.deskthing.on("co.lutea.lyrthing", this.handleLyrics.bind(this)),
     );
   }
 
   static getInstance(): LyricsStore {
     if (!LyricsStore.instance) {
-        LyricsStore.instance = new LyricsStore();
+      LyricsStore.instance = new LyricsStore();
     }
     return LyricsStore.instance;
   }
 
-
   private async handleLyrics(data: SocketData) {
     console.log("Got lyrics", data);
 
-    this.deskthing.sendMessageToParent({
+    this.deskthing.send({
       app: "co.lutea.lyrthing",
       type: "log",
       payload: "Successfully got lyrics" + JSON.stringify(data),
-    })
+    });
 
     this.currentLyrics = data.payload;
     if (this.currentLyrics != null) {
       this.lyricsListeners.forEach((listener) =>
-        listener(this.currentLyrics as JLF)
+        listener(this.currentLyrics as JLF),
       );
     }
   }
 
   getLyrics(): JLF | null {
     return this.currentLyrics;
+  }
+
+  clearLyrics() {
+    this.currentLyrics = null;
   }
 
   on(listener: LyricsListener): () => void {

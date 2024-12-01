@@ -1,12 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { JLF } from "../types/lyrics";
 import { LyricsStore } from "../stores/lyricsStore";
 import BasicLyrics from "./basicLyrics";
-
-interface SongInfo {
-  duration: number;
-  currentTime: number;
-}
 
 export default function Lyrics({ trackProgress }: { trackProgress: number }) {
   const lyricsStore = LyricsStore.getInstance();

@@ -1,6 +1,7 @@
 import { DeskThing } from "deskthing-client";
 import { SongData, SocketData } from "deskthing-client/dist/types";
 import { Message, MessageType } from "../types/messages";
+import lyricsStore from "./lyricsStore";
 
 type MusicListener = (data: SongData) => Promise<void>;
 export class MusicStore {
@@ -13,16 +14,16 @@ export class MusicStore {
   constructor() {
     this.deskthing = DeskThing.getInstance();
     this.listeners.push(
-      this.deskthing.on("music", this.handleMusic.bind(this))
+      this.deskthing.on("music", this.handleMusic.bind(this)),
     );
     setTimeout(
       () =>
-        this.deskthing.sendMessageToParent({
+        this.deskthing.send({
           app: "client",
           type: "get",
           request: "song",
         }),
-      2000
+      2000,
     );
   }
 
@@ -37,16 +38,18 @@ export class MusicStore {
     console.log("Got song", data);
     // if new song recognised, get the lyrics
     if (this.currentSong == null || this.currentSong.id != data.id) {
-      let track = data;
+      // clear lyrics!
+      lyricsStore.clearLyrics();
+      const track = data;
       track.thumbnail = null;
-      let msg = new Message(MessageType.LyricsUpdate, JSON.stringify(data));
-      this.deskthing.sendMessageToParent(msg.toSocketData("action"));
+      const msg = new Message(MessageType.LyricsUpdate, JSON.stringify(data));
+      this.deskthing.send(msg.toSocketData("action"));
     }
 
     this.currentSong = data;
     if (this.currentSong != null) {
       this.musicListeners.forEach((listener) =>
-        listener(this.currentSong as SongData)
+        listener(this.currentSong as SongData),
       );
     }
   }
@@ -59,7 +62,7 @@ export class MusicStore {
     if (this.currentSong) {
       this.currentSong.is_playing = state;
       this.musicListeners.forEach((listener) =>
-        listener(this.currentSong as SongData)
+        listener(this.currentSong as SongData),
       );
     }
   }

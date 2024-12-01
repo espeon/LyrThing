@@ -1,25 +1,20 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import { DeskThing } from "deskthing-client";
 import { SocketData, SongData } from "deskthing-client/dist/types";
 import { MusicStore } from "./stores/musicStore";
 import { CrossFade as CrossFadeSimple } from "react-crossfade-simple";
-import {
-  chooseTextColor,
-  colorArrToCSS,
-  getAverageRGB,
-  getComplementaryColor,
-  getMatchingOppositeColor,
-} from "./helpers/getAvgColor";
 import { ScrollingText } from "./components/scrollingText";
-import { Message, MessageType } from "./types/messages";
 import { useSmoothTimer } from "./hooks/useSmoothTimer";
 import { s2t } from "./helpers/ms2";
 import MicVocal from "./components/icons/micVocal";
 import { clsx } from "clsx";
 import LyricsLayout from "./components/lyricsLayout";
+import { useAlbumColors } from "./hooks/useAlbumColors";
+import MeshBackground from "./components/MeshBackground";
+import { chooseTextColor, getAverageColor } from "./helpers/getAvgColor";
 
 // import crossfade if we are bigger than md
-let isMd = window.innerWidth > 1024;
+const isMd = window.innerWidth > 1024;
 const CrossFade = isMd ? CrossFadeSimple : React.Fragment;
 
 export interface SongInfo {
@@ -30,24 +25,34 @@ export interface SongInfo {
 const App: React.FC = () => {
   const musicStore = MusicStore.getInstance();
   const [songData, setSongData] = React.useState<SongData | null>(
-    musicStore.getSong()
+    musicStore.getSong(),
   );
   const [thumbnail, setThumbnail] = React.useState<string | null>(null);
-  const [textColor, setTextColor] = React.useState<"rgba(10 10 10 var(--tw-text-opacity))" | "rgba(245 245 245 var(--tw-text-opacity))" | string>(
-    "#ccc"
-  );
-  const [albumColor, setAlbumColor] = React.useState<[number, number, number]>([
-    80, 80, 80,
-  ]);
+  const [textColor, setTextColor] = React.useState<
+    | "rgba(10 10 10 var(--tw-text-opacity))"
+    | "rgba(245 245 245 var(--tw-text-opacity))"
+    | string
+  >("#ccc");
   const [songInfo, setSongInfo] = React.useState<SongInfo>({
     duration: 0,
     currentTime: 0,
   });
 
   const [currentMode, setCurrentMode] = React.useState<"track" | "lyrics">(
-    "track"
+    "track",
   );
+
+  const albumColors = useAlbumColors(thumbnail);
+
   const deskthing = DeskThing.getInstance();
+
+  // calculate text color
+  useMemo(() => {
+    if (albumColors.isTransitioning) return;
+    const { r, g, b } = getAverageColor(albumColors.colors);
+
+    setTextColor(chooseTextColor([r, g, b]));
+  }, [albumColors]);
 
   const trackProgress = useSmoothTimer({
     duration: songInfo.duration / 1000,
@@ -79,39 +84,6 @@ const App: React.FC = () => {
   });
 
   useEffect(() => {
-    const rgb = async () => {
-      if (thumbnail != null) {
-        try {
-          // set text colour based on thumbnail data
-          let rgb = await getAverageRGB(thumbnail);
-          if (rgb instanceof Error) {
-            return deskthing.send(
-              new Message(MessageType.Error, rgb.message)
-            );
-          }
-          deskthing.send(
-            new Message(
-              MessageType.SongUpdate,
-              JSON.stringify({ song: songData, rgb: rgb })
-            )
-          );
-          let textCol = chooseTextColor(rgb);
-          setTextColor(textCol);
-          setAlbumColor(rgb);
-          console.log("text color", textCol);
-        } catch (e: any) {
-          console.error(e);
-          return deskthing.send(
-            new Message(MessageType.Error, JSON.stringify(e))
-          );
-        }
-      }
-    };
-    rgb();
-  }, [thumbnail]);
-
-  useEffect(() => {
-
     const onAppData = async (data: SocketData) => {
       console.log("Received data from the server!");
       console.log(data);
@@ -123,26 +95,22 @@ const App: React.FC = () => {
     };
   });
 
-  let albumColorCSS = colorArrToCSS(albumColor);
-
   return (
-    <div className="relative w-screen h-screen overflow-hidden rounded-xl opacity-100" style={{ backgroundColor: albumColorCSS }}>
+    <div
+      className="relative w-screen h-screen overflow-hidden rounded-xl opacity-100"
+      style={{ backgroundColor: albumColors[0] }}
+    >
       <div className="absolute inset-0 obs-invis">
         <div className="absolute inset-0"></div>
-        <CrossFade
-          contentKey={(songData && songData?.thumbnail) ?? "mnpme"}
-          timeout={1000}
-          style={{ backgroundColor: albumColorCSS }}
-        >
-          <img
+        {/* <img
             className={`blur-3xl scale-125 saturate-150 contrast-75 ${textColor === "rgba(245 245 245 var(--tw-text-opacity))" ? "brightness-110" : "brightness-75"} brightness-1 object-cover object-center w-screen h-screen`}
             src={
               songData?.thumbnail ??
               "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="
             }
             height="100%"
-          />
-        </CrossFade>
+          /> */}
+        <MeshBackground colors={albumColors.colors} />
       </div>
       <CrossFade
         contentKey={
@@ -174,11 +142,8 @@ const App: React.FC = () => {
                         alt=""
                         style={
                           {
-                            borderColor: colorArrToCSS(
-                              getComplementaryColor(albumColor),
-                              0.35
-                            ),
-                            "--tw-shadow-color": colorArrToCSS(albumColor, 0.5),
+                            borderColor: albumColors.colors[3] + "33",
+                            "--tw-shadow-color": albumColors.colors[3] + "99",
                           } as React.CSSProperties
                         }
                       />
@@ -223,11 +188,14 @@ const App: React.FC = () => {
                             />
                           </>
                         ) : (
-                          <ScrollingText text={songData.artist} className="text-3xl lg:text-5xl xl:text-6xl 2xl:text-7xl" />
+                          <ScrollingText
+                            text={songData.artist}
+                            className="text-3xl lg:text-5xl xl:text-6xl 2xl:text-7xl"
+                          />
                         )}
                         <div className="text-xl font-mono flex">
-                        {s2t(trackProgress.currentTime)}
-                          /{s2t(songInfo.duration / 1000)}
+                          {s2t(trackProgress.currentTime)}/
+                          {s2t(songInfo.duration / 1000)}
                         </div>
                       </>
                     ) : (
@@ -272,14 +240,12 @@ const App: React.FC = () => {
             <button
               className={clsx(
                 currentMode === "lyrics" && "bg-opacity-75",
-                `w-12 h-12 rounded-full p-1 transition-all duration-300 bg-opacity-55`
+                `w-12 h-12 rounded-full p-1 transition-all duration-300 bg-opacity-55`,
               )}
               style={{
-                backgroundColor: colorArrToCSS(
-                  getMatchingOppositeColor(albumColor)
-                ),
+                backgroundColor: albumColors.colors[4],
               }}
-              onClick={(_) => {
+              onClick={() => {
                 setCurrentMode(currentMode === "lyrics" ? "track" : "lyrics");
               }}
             >

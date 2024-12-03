@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Vibrant from "node-vibrant";
 
 type RGB = [number, number, number];
@@ -129,21 +129,8 @@ export function useAlbumColors(
     };
   }, [imageUrl, extractColors]);
 
-  // Animation effect
-  useEffect(() => {
-    if (!colorState.transitioning) return;
-
-    // Skip animation for mobile devices
-    if (window.innerWidth < 1024) {
-      setColorState((prev) => ({
-        ...prev,
-        current: prev.target,
-        transitioning: false,
-      }));
-      return;
-    }
-
-    const animate = (timestamp: number) => {
+  const animate = useCallback(
+    (timestamp: number) => {
       if (!startTime.current) startTime.current = timestamp;
       const linearProgress = Math.min(
         1,
@@ -165,7 +152,23 @@ export function useAlbumColors(
       } else {
         startTime.current = undefined;
       }
-    };
+    },
+    [transitionDuration],
+  );
+
+  // Animation effect
+  useEffect(() => {
+    if (!colorState.transitioning) return;
+
+    // Skip animation for mobile devices
+    if (window.innerWidth < 1024) {
+      setColorState((prev) => ({
+        ...prev,
+        current: prev.target,
+        transitioning: false,
+      }));
+      return;
+    }
 
     animationFrame.current = requestAnimationFrame(animate);
 
@@ -174,7 +177,7 @@ export function useAlbumColors(
         cancelAnimationFrame(animationFrame.current);
       }
     };
-  }, [colorState.transitioning, transitionDuration]);
+  }, [colorState.transitioning, transitionDuration, animate]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -184,7 +187,7 @@ export function useAlbumColors(
   }, []);
 
   return {
-    colors: colorState.current.map(rgbToHex),
+    colors: useMemo(() => colorState.current.map(rgbToHex), [colorState]),
     isTransitioning: colorState.transitioning,
   };
 }

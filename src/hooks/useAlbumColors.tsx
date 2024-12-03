@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Vibrant from "node-vibrant";
 
 type RGB = [number, number, number];
@@ -8,58 +8,88 @@ type ColorState = {
   transitioning: boolean;
 };
 
-function rgbToHex([r, g, b]: RGB): string {
-  return (
-    "#" +
-    [r, g, b].map((x) => Math.round(x).toString(16).padStart(2, "0")).join("")
-  );
-}
+// Move utility functions outside
+const rgbToHex = ([r, g, b]: RGB): string =>
+  "#" +
+  [r, g, b].map((x) => Math.round(x).toString(16).padStart(2, "0")).join("");
 
-function interpolateColor(color1: RGB, color2: RGB, progress: number): RGB {
-  return [
-    color1[0] + (color2[0] - color1[0]) * progress,
-    color1[1] + (color2[1] - color1[1]) * progress,
-    color1[2] + (color2[2] - color1[2]) * progress,
-  ];
-}
-
-function easeInOut(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-}
-
-const defaultColors: RGB[] = [
-  [26, 26, 26], // #1a1a1a
-  [0, 0, 0], // #000000
-  [51, 51, 51], // #333333
-  [26, 26, 26], // #1a1a1a
-  [0, 0, 0], // #000000
+const interpolateColor = (color1: RGB, color2: RGB, progress: number): RGB => [
+  color1[0] + (color2[0] - color1[0]) * progress,
+  color1[1] + (color2[1] - color1[1]) * progress,
+  color1[2] + (color2[2] - color1[2]) * progress,
 ];
+
+const easeInOut = (t: number): number =>
+  t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+const DEFAULT_COLORS: RGB[] = [
+  [26, 26, 26],
+  [0, 0, 0],
+  [51, 51, 51],
+  [26, 26, 26],
+  [0, 0, 0],
+];
+
+const SWATCH_TYPES = [
+  "Vibrant",
+  "Muted",
+  "DarkVibrant",
+  "DarkMuted",
+  "LightVibrant",
+] as const;
 
 export function useAlbumColors(
   imageUrl: string | null,
   transitionDuration = 1000,
 ) {
   const [colorState, setColorState] = useState<ColorState>({
-    current: defaultColors,
-    target: defaultColors,
+    current: DEFAULT_COLORS,
+    target: DEFAULT_COLORS,
     transitioning: false,
   });
 
   const animationFrame = useRef<number>();
   const startTime = useRef<number>();
+  const isMounted = useRef(true);
 
+  // Memoized color extraction function
+  const extractColors = useCallback(async (img: HTMLImageElement) => {
+    try {
+      const v = new Vibrant(img, { quality: 1, colorCount: 64 });
+      const palette = await v.getPalette();
+
+      const newColors = SWATCH_TYPES.map((type) => {
+        const swatch = palette[type];
+        return swatch ? (swatch.getRgb().map(Math.round) as RGB) : null;
+      }).filter(Boolean) as RGB[];
+
+      // Fill missing colors with random defaults
+      while (newColors.length < 5) {
+        newColors.push(
+          DEFAULT_COLORS[Math.floor(Math.random() * DEFAULT_COLORS.length)],
+        );
+      }
+
+      return newColors;
+    } catch (error) {
+      console.error("Failed to extract colors:", error);
+      return DEFAULT_COLORS;
+    }
+  }, []);
+
+  // Image loading effect
   useEffect(() => {
-    console.log("imageUrl", imageUrl);
-    if (!imageUrl)
-      return setColorState({
-        current: defaultColors,
-        target: defaultColors,
+    if (!imageUrl) {
+      setColorState({
+        current: DEFAULT_COLORS,
+        target: DEFAULT_COLORS,
         transitioning: false,
       });
+      return;
+    }
 
     const img = new Image();
     img.crossOrigin = "Anonymous";
-    // pass in b64 image (what the heck)
     img.src = imageUrl;
 
     const loadColors = async () => {
@@ -69,29 +99,9 @@ export function useAlbumColors(
           img.onerror = reject;
         });
 
-        const v = new Vibrant(img, { quality: 1, colorCount: 64 });
-        const palette = await v.getPalette();
+        if (!isMounted.current) return;
 
-        const swatchTypes = [
-          "Vibrant",
-          "Muted",
-          "DarkVibrant",
-          "DarkMuted",
-          "LightVibrant",
-        ];
-
-        const newColors = swatchTypes
-          .map((type) => {
-            const swatch = palette[type];
-            return swatch ? (swatch.getRgb().map(Math.round) as RGB) : null;
-          })
-          .filter(Boolean) as RGB[];
-
-        while (newColors.length < 5) {
-          newColors.push(
-            defaultColors[Math.floor(Math.random() * defaultColors.length)],
-          );
-        }
+        const newColors = await extractColors(img);
 
         setColorState((prev) => ({
           ...prev,
@@ -99,34 +109,35 @@ export function useAlbumColors(
           transitioning: true,
         }));
       } catch (error) {
-        console.error("Failed to extract colors:", error);
-        setColorState((prev) => ({
-          ...prev,
-          target: defaultColors,
-          transitioning: true,
-        }));
+        console.error("Failed to load image:", error);
+        if (isMounted.current) {
+          setColorState((prev) => ({
+            ...prev,
+            target: DEFAULT_COLORS,
+            transitioning: true,
+          }));
+        }
       }
     };
 
-    // schedule this
     animationFrame.current = requestAnimationFrame(loadColors);
 
-    // Cleanup
     return () => {
       if (animationFrame.current) {
         cancelAnimationFrame(animationFrame.current);
       }
     };
-  }, [imageUrl]);
+  }, [imageUrl, extractColors]);
 
-  // Handle the animation
+  // Animation effect
   useEffect(() => {
     if (!colorState.transitioning) return;
 
-    // if browser width is less than 1024px, transition instantly for perf
+    // Skip animation for mobile devices
     if (window.innerWidth < 1024) {
       setColorState((prev) => ({
         ...prev,
+        current: prev.target,
         transitioning: false,
       }));
       return;
@@ -141,13 +152,11 @@ export function useAlbumColors(
 
       const progress = easeInOut(linearProgress);
 
-      const interpolatedColors = colorState.current.map((currentColor, i) =>
-        interpolateColor(currentColor, colorState.target[i], progress),
-      );
-
       setColorState((prev) => ({
         ...prev,
-        current: interpolatedColors,
+        current: prev.current.map((currentColor, i) =>
+          interpolateColor(currentColor, prev.target[i], progress),
+        ),
         transitioning: progress < 1,
       }));
 
@@ -165,31 +174,17 @@ export function useAlbumColors(
         cancelAnimationFrame(animationFrame.current);
       }
     };
-  }, [colorState, transitionDuration]);
+  }, [colorState.transitioning, transitionDuration]);
 
-  // Convert current colors to hex for consuming components
-  const colors = colorState.current.map(rgbToHex);
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   return {
-    colors,
+    colors: colorState.current.map(rgbToHex),
     isTransitioning: colorState.transitioning,
   };
 }
-
-// Example usage:
-/*
-function AlbumArtwork({ imageUrl }) {
-  const { colors, isTransitioning } = useAlbumColors(imageUrl, 1000); // 1 second transition
-
-  return (
-    <div
-      style={{
-        background: `linear-gradient(to bottom, ${colors.join(', ')})`,
-        transition: isTransitioning ? 'none' : 'background 0.3s ease'
-      }}
-    >
-      <img src={imageUrl} alt="Album artwork" />
-    </div>
-  );
-}
-*/

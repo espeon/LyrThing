@@ -47,10 +47,19 @@ export function useAlbumColors(
     target: DEFAULT_COLORS,
     transitioning: false,
   });
+  // is car thing (or smaller than car thing)
+  const [isMd, setIsMd] = useState(window.innerWidth > 820);
 
   const animationFrame = useRef<number>();
   const startTime = useRef<number>();
   const isMounted = useRef(true);
+
+  // watch window innerWidth
+  useEffect(() => {
+    const handleResize = () => setIsMd(window.innerWidth > 820);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Memoized color extraction function
   const extractColors = useCallback(async (img: HTMLImageElement) => {
@@ -161,7 +170,7 @@ export function useAlbumColors(
     if (!colorState.transitioning) return;
 
     // Skip animation for mobile devices
-    if (true) {
+    if (isMd) {
       setColorState((prev) => ({
         ...prev,
         current: prev.target,

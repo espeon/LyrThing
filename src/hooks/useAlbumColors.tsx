@@ -161,16 +161,16 @@ export function useAlbumColors(
     if (!colorState.transitioning) return;
 
     // Skip animation for mobile devices
-    if (window.innerWidth < 1024) {
+    if (true) {
       setColorState((prev) => ({
         ...prev,
         current: prev.target,
         transitioning: false,
       }));
       return;
+    } else {
+      animationFrame.current = requestAnimationFrame(animate);
     }
-
-    animationFrame.current = requestAnimationFrame(animate);
 
     return () => {
       if (animationFrame.current) {

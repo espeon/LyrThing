@@ -6,12 +6,6 @@ export { DeskThing } // Required export of this exact name for the server to con
 console.log("Starting!")
 const start = async () => {
   console.log("Starting!")
-    //let Data = await DeskThing.getData()
-    DeskThing.toClient({
-      type: 'message', request: 'hello',
-      payload: 'hi helo'
-    });
-
     DeskThing.on('action', (m: SocketData) => {
         let msg = Message.fromJson(m.payload?.toString() || '');
         DeskThing.sendLog("Client sent a request for " + msg.type + " " + msg.message)

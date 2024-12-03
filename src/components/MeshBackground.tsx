@@ -21,7 +21,7 @@ const MeshBackground: React.FC<RadialGradientProps> = ({ colors }) => {
       transparent 20%
     ),
     radial-gradient(
-      circle at ${60}% ${40}%,
+      circle at 60% 40%,
       ${darkVibrant},
       transparent 55%
     ),

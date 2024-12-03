@@ -62,7 +62,7 @@ export function useAlbumColors(
     // pass in b64 image (what the heck)
     img.src = imageUrl;
 
-    const loadColors = async (img: HTMLImageElement) => {
+    const loadColors = async () => {
       try {
         await new Promise((resolve, reject) => {
           img.onload = resolve;
@@ -108,7 +108,8 @@ export function useAlbumColors(
       }
     };
 
-    loadColors(img);
+    // schedule this
+    animationFrame.current = requestAnimationFrame(loadColors);
 
     // Cleanup
     return () => {
@@ -121,6 +122,15 @@ export function useAlbumColors(
   // Handle the animation
   useEffect(() => {
     if (!colorState.transitioning) return;
+
+    // if browser width is less than 1024px, transition instantly for perf
+    if (window.innerWidth < 1024) {
+      setColorState((prev) => ({
+        ...prev,
+        transitioning: false,
+      }));
+      return;
+    }
 
     const animate = (timestamp: number) => {
       if (!startTime.current) startTime.current = timestamp;
@@ -157,7 +167,7 @@ export function useAlbumColors(
     };
   }, [colorState, transitionDuration]);
 
-  // // Convert current colors to hex for consuming components
+  // Convert current colors to hex for consuming components
   const colors = colorState.current.map(rgbToHex);
 
   return {

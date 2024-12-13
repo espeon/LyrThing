@@ -13,7 +13,7 @@ interface ScrollingTextProps {
 export function ScrollingText({
   text,
   className = "",
-  fadeWidth = 8
+  fadeWidth = 8,
 }: ScrollingTextProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
@@ -30,7 +30,6 @@ export function ScrollingText({
     const dupe = dupeTextRef.current;
 
     if (container && textElement) {
-
       let isTextOverflowing: boolean | ((prevState: boolean) => boolean);
       let len: React.SetStateAction<number>;
 
@@ -71,10 +70,10 @@ export function ScrollingText({
           ? ({
               "--leftStop": `${(fadeWidth / containerWidth) * 100}%`,
               "--rightStop": `calc(100% - var(--leftStop))`,
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent 0%, black var(--leftStop), black var(--rightStop), transparent 100%)",
               maskImage:
                 "linear-gradient(to right, transparent 0%, black var(--leftStop), black var(--rightStop), transparent 100%)",
-              WebkitMaskImage:
-                "linear-gradient(to right, transparent 0%, black var(--leftStop), black var(--rightStop), transparent 100%)", // For WebKit browsers
             } as CSSProperties)
           : {}
       }
@@ -91,7 +90,7 @@ export function ScrollingText({
             animationIterationCount: "infinite",
             // the 0.5rem here is based off half the padding in the span below
             // (padding of value 4 is 1rem)
-            "--text-width": `calc(${textWidth}px + (32px))`,
+            "--text-width": `calc(${textWidth}px + (64px))`,
           } as CSSProperties
         }
       >
@@ -100,9 +99,10 @@ export function ScrollingText({
           <>
             <div
               className="text-center items-center inline-block"
-              style={{ width: "32px" }}
+              style={{ width: "64px" }}
               ref={dividerRef}
-            >·
+            >
+              ·
             </div>
             <span ref={dupeTextRef}>{text}</span>
           </>

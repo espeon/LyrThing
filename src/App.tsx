@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { DeskThing } from "deskthing-client";
 import { SocketData, SongData } from "deskthing-client/dist/types";
 import { MusicStore } from "./stores/musicStore";
@@ -12,6 +12,8 @@ import LyricsLayout from "./components/lyricsLayout";
 import { useAlbumColors } from "./hooks/useAlbumColors";
 import MeshBackground from "./components/MeshBackground";
 import { chooseTextColor, getAverageColor } from "./helpers/getAvgColor";
+import useSwipe from "./hooks/useSwipe";
+import { SwipeHandler, PagesType } from "./components/swipeHandler";
 
 // import crossfade if we are bigger than md
 const isMd = window.innerWidth > 1024;
@@ -25,7 +27,7 @@ export interface SongInfo {
 const App: React.FC = () => {
   const musicStore = MusicStore.getInstance();
   const [songData, setSongData] = React.useState<SongData | null>(
-    musicStore.getSong(),
+    musicStore.getSong()
   );
   const [thumbnail, setThumbnail] = React.useState<string | null>(null);
   const [textColor, setTextColor] = React.useState<
@@ -38,9 +40,7 @@ const App: React.FC = () => {
     currentTime: 0,
   });
 
-  const [currentMode, setCurrentMode] = React.useState<"track" | "lyrics">(
-    "track",
-  );
+  const [currentMode, setCurrentMode] = React.useState<PagesType>("track");
 
   const albumColors = useAlbumColors(thumbnail);
 
@@ -61,6 +61,9 @@ const App: React.FC = () => {
     isActivelyPlaying: songData?.is_playing,
   });
 
+  const swipeRef = useRef<HTMLDivElement>(null);
+  const directions = useSwipe(swipeRef);
+
   useEffect(() => {
     const onMusicUpdates = async (data: SongData) => {
       setSongData(data);
@@ -71,8 +74,9 @@ const App: React.FC = () => {
           currentTime: data.track_progress,
         });
       }
-      if (data.thumbnail && data.thumbnail !== thumbnail) {
-        setThumbnail(data.thumbnail);
+      if (data?.thumbnail && data.thumbnail && data.thumbnail !== null) {
+        console.log("Setting thumbnail");
+        setThumbnail(data.thumbnail); // Set the thumbnail URL with real data when available
       }
     };
 
@@ -99,6 +103,7 @@ const App: React.FC = () => {
     <div
       className="relative w-screen h-screen overflow-hidden rounded-xl opacity-100"
       style={{ backgroundColor: albumColors[0] }}
+      ref={swipeRef}
     >
       <div className="absolute inset-0 obs-invis">
         <div className="absolute inset-0"></div>
@@ -120,23 +125,23 @@ const App: React.FC = () => {
         }
         timeout={500}
       >
-        <div className="relative flex flex-col w-screen h-full items-center justify-center">
+        <div
+          className="relative flex flex-col w-screen h-full items-center justify-center"
+          
+        >
           {songData ? (
             <>
               <div className="w-screen h-screen max-h-screen flex flex-col justify-evenly flex-1 lg:px-16">
                 <div className="max-h-screen w-screen flex flex-row gap-2 items-center justify-center">
                   <div
-                    className="h-min max-h-[80vh] w-full aspect-square"
+                    className="h-min max-h-[70vh] lg:max-w-[25vw] w-full aspect-square place-items-center"
                     style={{ width: "30%", color: textColor }}
                   >
-                    <CrossFade
-                      contentKey={(songData && songData?.thumbnail) ?? "mnpme"}
-                      timeout={500}
-                    >
+                    <CrossFade contentKey={thumbnail ?? "mnpme"} timeout={500}>
                       <img
                         className="w-full h-full object-center aspect-square rounded-lg border-2 shadow-lg"
                         src={
-                          songData?.thumbnail ??
+                          thumbnail ??
                           "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkqAcAAIUAgUW0RjgAAAAASUVORK5CYII="
                         }
                         alt=""
@@ -149,15 +154,17 @@ const App: React.FC = () => {
                       />
                     </CrossFade>
                     {currentMode != "track" && (
-                      <div className="w-full pt-2">
-                        <ScrollingText
-                          text={songData.track_name}
-                          className="drop-shadow-lg text-2xl lg:text-4xl xl:text-6xl"
-                        />
-                        <ScrollingText
-                          text={songData.artist}
-                          className="text-2xl lg:text-4xl xl:text-6xl"
-                        />
+                      <div className="flex flex-col w-full pt-2">
+                        <div className="flex-1">
+                          <ScrollingText
+                            text={songData.track_name}
+                            className="drop-shadow-lg text-2xl lg:text-3xl xl:text-6xl"
+                          />
+                          <ScrollingText
+                            text={songData.artist}
+                            className="text-2xl lg:text-3xl xl:text-6xl"
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -213,47 +220,13 @@ const App: React.FC = () => {
               <div className="h-10 w-10 bg-white rounded-full animate-bounce"></div>
             </div>
           )}
-          <div className="w-screen px-4 pb-4 -mt-14 flex flex-col items-start justify-center gap-2">
-            {/* <div
-                  className="w-full h-2 rounded-lg"
-                  style={{
-                    backgroundColor: colorArrToCSS(
-                      getComplementaryColor(albumColor),
-                      50
-                    ),
-                  }}
-                >
-                  <div
-                    className="h-2 mt-2 border rounded-full"
-                    style={{
-                      width: `${
-                        trackProgress.currentTime / (songInfo.duration / 100000)
-                      }%`,
-                      backgroundColor: colorArrToCSS(albumColor),
-                      borderColor: colorArrToCSS(
-                        getComplementaryColor(albumColor),
-                        33
-                      ),
-                    }}
-                  ></div>
-                </div> */}
-            <button
-              className={clsx(
-                currentMode === "lyrics" && "bg-opacity-75",
-                `w-12 h-12 rounded-full p-1 transition-all duration-300 bg-opacity-55`,
-              )}
-              style={{
-                backgroundColor: albumColors.colors[4],
-              }}
-              onClick={() => {
-                setCurrentMode(currentMode === "lyrics" ? "track" : "lyrics");
-              }}
-            >
-              <MicVocal className="w-full h-full" />
-            </button>
-          </div>
         </div>
       </CrossFade>
+      <SwipeHandler
+        currentMode={currentMode}
+        setCurrentMode={setCurrentMode}
+        directions={directions}
+      />
     </div>
   );
 };

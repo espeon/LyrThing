@@ -14,7 +14,7 @@ export class LyricsStore {
   constructor() {
     this.deskthing = DeskThing.getInstance();
     this.listeners.push(
-      this.deskthing.on("co.lutea.lyrthing", this.handleLyrics.bind(this)),
+      this.deskthing.on("lyrics", this.handleLyrics.bind(this)),
     );
   }
 
@@ -31,7 +31,7 @@ export class LyricsStore {
     this.deskthing.send({
       app: "co.lutea.lyrthing",
       type: "log",
-      payload: "Successfully got lyrics" + JSON.stringify(data),
+      payload: "Successfully got lyrics",
     });
 
     this.currentLyrics = data.payload;

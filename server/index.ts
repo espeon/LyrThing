@@ -13,17 +13,23 @@ const start = async () => {
         if (msg.type == 'lyrics') {
           let query = JSON.parse(msg.message) as SongData
           DeskThing.sendLog("Handling lyrics request -" + JSON.stringify(query));
-          getCurrentLyrics(JSON.parse(msg.message) as SongData).then((lyrics) => {
+          getCurrentLyrics(query).then((lyrics) => {
             if (lyrics != null) {
-              let msg = new Message(MessageType.LyricsUpdate, JSON.stringify(lyrics));
+              new Message(MessageType.LyricsUpdate, JSON.stringify(lyrics));
               DeskThing.sendDataToClient({
                 type: 'lyrics',
                 payload: lyrics,
               });
             }
           }).catch((err) => {
-            DeskThing.sendError(err);
-          })
+            // send lyrics error to client
+            DeskThing.sendDataToClient({
+              type: 'lyrics',
+              payload: {
+                err: err.message
+              },
+            });
+          });
         } else if (msg.type == 'log') {
           DeskThing.sendLog("Client - " + msg.message);
         }

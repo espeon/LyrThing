@@ -23,7 +23,7 @@ export class MusicStore {
           type: "get",
           request: "song",
         }),
-      2000,
+      1000,
     );
   }
 
@@ -34,19 +34,20 @@ export class MusicStore {
     return MusicStore.instance;
   }
 
-  private async handleMusic(data: SongData) {
+  private async handleMusic(data: SocketData) {
+    const song = data.payload;
     console.log("Got song", data);
     // if new song recognised, get the lyrics
-    if (this.currentSong == null || this.currentSong.id != data.id) {
-      // clear lyrics!
+    if (!this.currentSong || this.currentSong.track_name + this.currentSong.artist + this.currentSong.album !== song.track_name + song.artist + song.album) {
       lyricsStore.clearLyrics();
-      const track = data;
-      track.thumbnail = null;
-      const msg = new Message(MessageType.LyricsUpdate, JSON.stringify(data));
-      this.deskthing.send(msg.toSocketData("action"));
+      const track: SongData = { ...song, thumbnail: null };
+      this.deskthing.send(
+        new Message(MessageType.LyricsUpdate, JSON.stringify(track)).toSocketData(
+          "action",
+        ),
+      );
     }
-
-    this.currentSong = data;
+    this.currentSong = song;
     if (this.currentSong != null) {
       this.musicListeners.forEach((listener) =>
         listener(this.currentSong as SongData),

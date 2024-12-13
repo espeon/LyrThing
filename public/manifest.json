@@ -8,13 +8,19 @@
     ""
   ],
   "label": "LyrThing",
-  "version": "0.1.1",
-  "description": "Now Playing viewer and Client for umi lyrics server",
+  "version": "0.1.2",
+  "description": "Now Playing and lyrics viewer for your music",
   "author": "Natalie B.",
   "platforms": [
     "windows",
     "macos",
     "linux"
+  ],
+  "compatible_server": [
+    "10"
+  ],
+  "compatible_client": [
+    "10"
   ],
   "homepage": "https://github.com/espeon/lyr-server",
   "repository": "https://github.com/espeon/lyr-server"

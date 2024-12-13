@@ -12,6 +12,8 @@ export default {
       'serif': ['DM Serif Display', 'serif'],
     }
   },
-  plugins: [],
+  plugins: [
+    require("tailwindcss-animate"),
+  ],
 }
 

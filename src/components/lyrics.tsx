@@ -24,7 +24,7 @@ export default function Lyrics({ trackProgress }: { trackProgress: number }) {
   if (lyrics == null || lyrics.lines == null) {
     return (
       <div className="hide-scrollbar w-max h-screen max-w-full overflow-y-auto flex justify-center items-center text-4xl">
-        We couldn't find any <br /> lyrics for this track.
+        
       </div>
     );
   }

@@ -69,7 +69,7 @@ export default function BasicLyrics({
         return (
           <div
             key={i}
-            className={`w-max max-w-full text-wrap transition-transform bg-transparent duration-0 mb-2 md:mb-4 lg:mb-10 xl:mb-12 py-2 text-left origin-left text-3xl md:text-4xl lg:text-6xl xl:text-7xl ${
+            className={`w-max max-w-full text-wrap transition-transform bg-transparent duration-0 mb-2 md:mb-4 lg:mb-10 xl:mb-12 py-2 text-left origin-left text-3xl lg:text-5xl xl:text-7xl ${
               segStatus.isActive ? "scale-100" : "scale-90"
             } lg:transition-all lg:duration-500 ease-in-out`}
           >

@@ -89,6 +89,7 @@ export function useAlbumColors(
   // Image loading effect
   useEffect(() => {
     if (!imageUrl) {
+      console.log("No image URL provided");
       setColorState({
         current: DEFAULT_COLORS,
         target: DEFAULT_COLORS,
@@ -96,6 +97,8 @@ export function useAlbumColors(
       });
       return;
     }
+
+    console.log("Loading image colors");
 
     const img = new Image();
     img.crossOrigin = "Anonymous";

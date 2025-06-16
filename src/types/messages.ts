@@ -1,4 +1,4 @@
-import { SocketData } from "deskthing-server";
+import { SocketData } from '@deskthing/types';
 
 export enum FnType {
   getAverageRGB = "getAverageRGB",

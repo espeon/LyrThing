@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react";
-import { DeskThing } from "deskthing-client";
-import { SocketData, SongData } from "deskthing-client/dist/types";
+import { DeskThing } from '@deskthing/client';
+import { SocketData, SongData } from "@deskthing/types";
 import { MusicStore } from "./stores/musicStore";
 import { CrossFade as CrossFadeSimple } from "react-crossfade-simple";
 import { ScrollingText } from "./components/scrollingText";
@@ -43,8 +43,6 @@ const App: React.FC = () => {
   const [currentMode, setCurrentMode] = React.useState<PagesType>("track");
 
   const albumColors = useAlbumColors(thumbnail);
-
-  const deskthing = DeskThing.getInstance();
 
   // calculate text color
   useMemo(() => {
@@ -92,7 +90,7 @@ const App: React.FC = () => {
       console.log("Received data from the server!");
       console.log(data);
     };
-    const removeListener = deskthing.on("co.lutea.lyrthing", onAppData);
+    const removeListener = DeskThing.on("co.lutea.lyrthing", onAppData);
 
     return () => {
       removeListener();

@@ -5,18 +5,16 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:wrapper\"",
+    "dev": "vite",
     "build-windows": "vite build && npm run build-server-windows",
     "build-server-windows": "esbuild server/index.ts --bundle --platform=node --outdir=dist/ && cd dist && powershell -c ren index.js index.cjs && powershell -c compress-archive -path ./* -destinationpath ./lyrthing",
     "build-and-zip": "npm run build && npm run zip-server-unix",
-    "build": "npx @deskthing/cli package",
+    "build": "vite build && npm run build-server",
     "build-server": "esbuild server/index.ts --bundle --platform=node --outdir=dist/",
     "zip-server-unix": "cd dist && mv index.js index.cjs && zip -r lyrthing.zip .",
     "setup": "node setup.js",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "dev:vite": "vite",
-    "dev:wrapper": "npx @deskthing/cli dev"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@deskthing/client": "^0.11.1",

@@ -1,0 +1,32 @@
+{
+  "id": "co.lutea.lyrthing",
+  "requires": [
+    ""
+  ],
+  "label": "LyrThing",
+  "version": "0.1.3",
+  "compatible_server": [
+    "10"
+  ],
+  "compatible_client": [
+    "10"
+  ],
+  "description": "Now Playing and lyrics viewer for your music",
+  "author": "Natalie B.",
+  "platforms": [
+    "windows",
+    "macos",
+    "linux"
+  ],
+  "homepage": "https://github.com/espeon/LyrThing",
+  "repository": "https://github.com/espeon/LyrThing",
+  "tags": [
+    false,
+    false
+  ],
+  "requiredVersions": {
+    "server": ">=0.11.0",
+    "client": ">=0.11.0"
+  },
+  "updateUrl": "https://github.com/espeon/LyrThing"
+}

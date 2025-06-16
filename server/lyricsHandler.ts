@@ -1,10 +1,8 @@
-import { SongData } from "deskthing-server";
+import { SongData } from '@deskthing/types';
 import lrcToJlf from "./convertToJLF";
 import { JLF } from "../src/types/lyrics";
 
 const BASE_URL = "https://lrclib.net/api";
-
-import { DeskThing } from "./index";
 
 export default async function getCurrentLyrics(
   song: SongData,
@@ -16,7 +14,7 @@ export default async function getCurrentLyrics(
     query.append("artist_name", song.artist);
   if (song.album && song.album != "") query.append("album_name", song.album);
 
-  DeskThing.sendLog(
+  console.log(
     "Sending request for lyrics: https://lrclib.net/api/get?" +
       query.toString(),
   );
@@ -35,7 +33,7 @@ export default async function getCurrentLyrics(
 
   const data = await res.json();
 
-  DeskThing.sendLog("Got response from lrclib.net track id:" + data.id);
+  console.log("Got response from lrclib.net track id:" + data.id);
 
   if (data.length == 0) {
     throw new Error("No lyrics found");

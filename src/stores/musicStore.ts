@@ -1,29 +1,18 @@
-import { DeskThing } from "deskthing-client";
-import { SongData, SocketData } from "deskthing-client/dist/types";
+import { DeskThing } from '@deskthing/client';
+import { DeviceToClientCore, SocketData, SongData } from "@deskthing/types";
 import { Message, MessageType } from "../types/messages";
 import lyricsStore from "./lyricsStore";
 
 type MusicListener = (data: SongData) => Promise<void>;
 export class MusicStore {
   private static instance: MusicStore;
-  private deskthing: DeskThing;
   private listeners: ((data: SocketData) => void)[] = [];
   private musicListeners: MusicListener[] = [];
   private currentSong: SongData | null = null;
 
   constructor() {
-    this.deskthing = DeskThing.getInstance();
     this.listeners.push(
-      this.deskthing.on("music", this.handleMusic.bind(this)),
-    );
-    setTimeout(
-      () =>
-        this.deskthing.send({
-          app: "client",
-          type: "get",
-          request: "song",
-        }),
-      1000,
+      DeskThing.on("music", this.handleMusic.bind(this)),
     );
   }
 
@@ -34,14 +23,14 @@ export class MusicStore {
     return MusicStore.instance;
   }
 
-  private async handleMusic(data: SocketData) {
+  private async handleMusic(data: Extract<DeviceToClientCore, { type: "music" }>) {
     const song = data.payload;
     console.log("Got song", data);
     // if new song recognised, get the lyrics
     if (!this.currentSong || this.currentSong.track_name + this.currentSong.artist + this.currentSong.album !== song.track_name + song.artist + song.album) {
       lyricsStore.clearLyrics();
       const track: SongData = { ...song, thumbnail: null };
-      this.deskthing.send(
+      DeskThing.send(
         new Message(MessageType.LyricsUpdate, JSON.stringify(track)).toSocketData(
           "action",
         ),
